@@ -1,0 +1,34 @@
+package main
+
+import (
+    "fmt"
+    "io/ioutil"
+    "os"
+    "path/filepath"
+)
+
+func createRootFiles(rootFolder string) {
+    os.MkdirAll(rootFolder, os.ModePerm)
+
+    // Basic provider.tf and variables.tf
+    providerContent := `provider "azurerm" {
+  features {}
+}`
+    variablesContent := `variable "location" {
+  description = "Azure region"
+  type        = string
+}`
+
+    ioutil.WriteFile(filepath.Join(rootFolder, "provider.tf"), []byte(providerContent), os.ModePerm)
+    ioutil.WriteFile(filepath.Join(rootFolder, "variables.tf"), []byte(variablesContent), os.ModePerm)
+}
+
+func createModuleFiles(moduleFolder, resource, moduleCode string) {
+    mainFilePath := filepath.Join(moduleFolder, "main.tf")
+    variablesFilePath := filepath.Join(moduleFolder, "variables.tf")
+    outputFilePath := filepath.Join(moduleFolder, "output.tf")
+
+    ioutil.WriteFile(mainFilePath, []byte(moduleCode), os.ModePerm)
+    ioutil.WriteFile(variablesFilePath, []byte(fmt.Sprintf("# Variables for %s", resource)), os.ModePerm)
+    ioutil.WriteFile(outputFilePath, []byte(fmt.Sprintf("# Outputs for %s", resource)), os.ModePerm)
+}
